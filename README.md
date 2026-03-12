@@ -144,6 +144,75 @@ log.Print("request completed")
 go test ./...
 ```
 
+## CI/CD
+
+The repository includes GitHub Actions workflows for continuous integration and releases.
+
+### CI (`ci.yml`)
+
+Runs automatically on every push to `main`, on pull requests, and on manual dispatch. Three jobs:
+
+| Job | Runs on | What it does |
+|-----|---------|-------------|
+| **test** | Ubuntu, macOS, Windows | `go build .` and `go test ./...` |
+| **lint** | Ubuntu | `go vet ./...` |
+| **plugin-smoke** | Ubuntu | Builds the golangci-lint plugin with `-buildmode=plugin` and verifies the artifact |
+
+The plugin smoke test runs only on Linux because Go's `-buildmode=plugin` is not supported on Windows and requires `CGO_ENABLED=1`.
+
+### Release (`release.yml`)
+
+Triggered when a version tag is pushed (e.g. `v0.1.0`). It builds standalone CLI binaries for five targets, packages them, and publishes a GitHub Release with checksums:
+
+- `loglint-linux-amd64.tar.gz`
+- `loglint-linux-arm64.tar.gz`
+- `loglint-darwin-amd64.tar.gz`
+- `loglint-darwin-arm64.tar.gz`
+- `loglint-windows-amd64.zip`
+- `checksums.txt`
+
+To create a release:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The plugin `.so` is **not** included in releases because it must be built in the same Go/OS environment as your `golangci-lint` binary. Build it locally instead (see [golangci-lint plugin](#golangci-lint-plugin) above).
+
+### Using loglint in your own GitHub Actions
+
+**Standalone** — install and run in any workflow:
+
+```yaml
+- uses: actions/setup-go@v5
+  with:
+    go-version: "1.22"
+
+- run: go install github.com/GeorgiiChertkoev/loglint@latest
+
+- run: loglint ./...
+```
+
+**Plugin mode** — build the plugin on Linux/macOS, then run golangci-lint:
+
+```yaml
+- run: |
+    git clone https://github.com/GeorgiiChertkoev/loglint.git /tmp/loglint
+    cd /tmp/loglint
+    CGO_ENABLED=1 go build -buildmode=plugin -o loglint.so ./plugin
+    cp loglint.so $GITHUB_WORKSPACE/
+
+- run: golangci-lint run
+```
+
+Make sure your `.golangci.yml` points `path:` at `./loglint.so`.
+
+### Troubleshooting
+
+- **Plugin build fails on Windows** — Go's `-buildmode=plugin` is not supported on Windows. Use Linux or macOS runners.
+- **Plugin load error / version mismatch** — The plugin must be compiled with the same Go version and OS/arch as the `golangci-lint` binary. Pin both in your workflow.
+
 ## License
 
 MIT
