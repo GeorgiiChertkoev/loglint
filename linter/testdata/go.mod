@@ -1,4 +1,4 @@
-module testdata
+module a
 
 go 1.22
 

@@ -18,9 +18,9 @@ func testdataDir(t *testing.T) string {
 }
 
 func TestAnalyzer(t *testing.T) {
-	analysistest.Run(t, testdataDir(t), Analyzer, ".")
+	analysistest.Run(t, testdataDir(t), Analyzer, "a")
 }
 
 func TestAnalyzerFixes(t *testing.T) {
-	analysistest.RunWithSuggestedFixes(t, testdataDir(t), Analyzer, ".")
+	analysistest.RunWithSuggestedFixes(t, testdataDir(t), Analyzer, "a")
 }
