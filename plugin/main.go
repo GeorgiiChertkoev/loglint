@@ -1,13 +1,19 @@
 package main
 
 import (
-	"loglinter/linter"
+	"loglint/linter"
 
 	"golang.org/x/tools/go/analysis"
 )
 
-// New returns the list of analyzers for the loglint plugin.
-// This is the entry point used by golangci-lint when loading a Go plugin (-buildmode=plugin).
+// New is the entry point used by golangci-lint when loading a Go plugin (-buildmode=plugin).
 func New(conf any) ([]*analysis.Analyzer, error) {
-	return []*analysis.Analyzer{linter.Analyzer}, nil
+	cfg, err := linter.ParsePluginConfig(conf)
+	if err != nil {
+		return nil, err
+	}
+	if err := cfg.Prepare(); err != nil {
+		return nil, err
+	}
+	return []*analysis.Analyzer{linter.NewAnalyzer(&cfg)}, nil
 }

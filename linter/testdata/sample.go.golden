@@ -12,7 +12,7 @@ func main() {
 	defer logger.Sync()
 
 	// Rule 1: lowercase - should report
-	slog.Info("Starting server") // want `log message must start with a lowercase letter`
+	slog.Info("starting server") // want `log message must start with a lowercase letter`
 
 	// Rule 1: OK
 	slog.Info("starting server")
@@ -27,7 +27,7 @@ func main() {
 	slog.Info("server started \U0001F680") // want `log message must be in English only` `log message must not contain emojis`
 
 	// Rule 3: repeated punctuation - should report
-	slog.Error("connection failed!!!") // want `log message must not contain repeated punctuation`
+	slog.Error("connection failed") // want `log message must not contain repeated punctuation`
 
 	// Rule 3: OK
 	slog.Warn("something went wrong")
@@ -45,7 +45,7 @@ func main() {
 	logger.Info("request completed successfully")
 
 	// stdlib log support
-	log.Print("Starting stdlib") // want `log message must start with a lowercase letter`
+	log.Print("starting stdlib") // want `log message must start with a lowercase letter`
 	log.Println("starting stdlib ok")
 	log.Printf("token: leaked", "x") // want `log message must not contain potentially sensitive`
 }

@@ -1,19 +1,17 @@
 package rules
 
-import "regexp"
-
-var (
-	// Match "key: " or "key=" in message (case-insensitive) — suggests logging a secret value
-	sensitivePattern = regexp.MustCompile(`(?i)(password|api_key|apikey|token|secret|credential|bearer|private_key)\s*[:=]`)
-)
-
-// CheckNoSensitiveData reports if the message or pattern suggests logging sensitive data.
-// isConcat is true when the log argument was a string concatenation (e.g. "msg " + var).
-func CheckNoSensitiveData(msg string, isConcat bool) string {
-	if isConcat {
-		return "log message must not contain potentially sensitive data (avoid concatenating variables with sensitive keywords)"
+// CheckNoSensitiveData reports if the message suggests logging sensitive data.
+// hasVar is true when the log argument is a concatenation containing non-literal
+// operands (variables, function calls). matchPattern tests the message against
+// configured sensitive-data regexes.
+func CheckNoSensitiveData(msg string, hasVar bool, matchPattern func(string) bool) string {
+	if matchPattern == nil {
+		return ""
 	}
-	if sensitivePattern.MatchString(msg) {
+	if matchPattern(msg) {
+		if hasVar {
+			return "log message must not contain potentially sensitive data (avoid concatenating variables with sensitive keywords)"
+		}
 		return "log message must not contain potentially sensitive data (e.g. password, token, api_key)"
 	}
 	return ""

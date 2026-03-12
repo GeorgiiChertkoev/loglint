@@ -1,5 +1,5 @@
-# Example config to use loglinter as a custom golangci-lint plugin.
-# Copy to .golangci.yml and set the path to your built plugin (loglint.so or loglint.dll).
+# Example config to use loglint as a custom golangci-lint plugin.
+# Copy to .golangci.yml and set the path to your built plugin (loglint.so).
 
 version: "2"
 
@@ -11,6 +11,13 @@ linters:
 linters-settings:
   custom:
     loglint:
-      path: ./loglint.so   # or loglint.dll on Windows; use absolute path if needed
+      path: ./loglint.so
       description: Log message style and safety checks (lowercase, English, no special chars, no sensitive data)
       original-url: github.com/GeorgiiChertkoev/loglint
+      settings:
+        loggers:
+          - slog
+          - zap
+          - log
+        sensitive_patterns:
+          - '(?i)(password|api_key|apikey|token|secret|credential|bearer|private_key)\s*[:=]'

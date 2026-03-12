@@ -1,4 +1,4 @@
-module loglinter
+module loglint
 
 go 1.22.0
 

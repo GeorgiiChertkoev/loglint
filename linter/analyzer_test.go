@@ -11,3 +11,8 @@ func TestAnalyzer(t *testing.T) {
 	testdata := filepath.Join("testdata")
 	analysistest.Run(t, testdata, Analyzer, ".")
 }
+
+func TestAnalyzerFixes(t *testing.T) {
+	testdata := filepath.Join("testdata")
+	analysistest.RunWithSuggestedFixes(t, testdata, Analyzer, ".")
+}
